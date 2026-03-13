@@ -1,0 +1,171 @@
+###  Registry Index JSON Schema（推荐文件：index.json 或 v1/index.json）
+
+这是一个 registry 服务暴露的**主索引文件**，CLI 通过 GET https://skills.oarss.org/index.json 获取包列表。
+
+**JSON Schema**（draft-07 风格，可用 ajv 等工具验证）：
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OARSS Registry Index v1",
+  "description": "轻量级 registry 索引，包含所有可用 persona-bundle / skill 的元数据摘要，用于搜索、依赖解析和版本选择",
+  "type": "object",
+  "required": ["version", "timestamp", "packages"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "索引格式版本"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "索引最后更新时间 (ISO 8601)"
+    },
+    "total_packages": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "总包数（可选，便于客户端分页提示）"
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "description", "latest_version", "source"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,}[a-z0-9]$",
+            "description": "包名，与 SKILL.md name 一致，kebab-case"
+          },
+          "type": {
+            "enum": ["persona-bundle", "skill", "procedure", "tool"],
+            "description": "OARSS 类型"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "简短描述（来自 SKILL.md description）"
+          },
+          "latest_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$",
+            "description": "最新 semver 版本"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "object",
+            "required": ["type", "url"],
+            "properties": {
+              "type": {
+                "enum": ["git", "tar", "ipfs", "http"],
+                "description": "内容来源类型"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "下载/克隆地址，例如 git+https://github.com/... 或 ipfs://..."
+              },
+              "subdir": {
+                "type": "string",
+                "description": "git sparse-checkout 子目录（可选）"
+              },
+              "sha256": {
+                "type": "string",
+                "description": "内容哈希（推荐，便于验证）"
+              }
+            }
+          },
+          "metadata_summary": {
+            "type": "object",
+            "description": "关键 metadata 摘要（不完整 SKILL.md，但足够搜索/依赖解析）",
+            "properties": {
+              "role_category": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "trigger_scenarios": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "sub_skills": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name"],
+                  "properties": {
+                    "name": { "type": "string" },
+                    "version_range": { "type": "string" },
+                    "required": { "type": "boolean", "default": true }
+                  }
+                }
+              },
+              "estimated_tokens": {
+                "type": "object",
+                "properties": {
+                  "brief": { "type": "integer" },
+                  "full": { "type": "integer" }
+                }
+              }
+            }
+          },
+          "installs": {
+            "type": "integer",
+            "description": "累计安装次数（可选，排行榜用）"
+          },
+          "score": {
+            "type": "number",
+            "description": "社区/流行度分数（可选）"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**示例 index.json 片段**（简化版）：
+
+```json
+{
+  "version": "1.0.0",
+  "timestamp": "2026-03-13T12:34:56Z",
+  "packages": [
+    {
+      "name": "senior-fullstack-engineer",
+      "type": "persona-bundle",
+      "description": "当涉及 React/Next.js + TypeScript + Supabase 全栈开发时激活…",
+      "latest_version": "1.0.0",
+      "published_at": "2026-03-10T09:00:00Z",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/open-agent-role-skill/oarss-examples.git",
+        "subdir": "senior-fullstack-engineer"
+      },
+      "metadata_summary": {
+        "role_category": ["开发-全栈", "工程师"],
+        "trigger_scenarios": ["React", "Next.js", "代码 review"],
+        "sub_skills": [
+          {"name": "react-best-practices", "version_range": "^1.3", "required": true},
+          {"name": "typescript-advanced-patterns", "version_range": "^2.0", "required": true}
+        ],
+        "estimated_tokens": {"brief": 220, "full": 4800}
+      }
+    }
+    // ... 更多包
+  ]
+}
+```
+
+**设计说明**：
+
+- **轻量**：metadata_summary 只包含搜索/依赖最需要的信息，避免 index.json 过大（类似 npm search index）
+- **可扩展**：未来可加 "signatures"（签名列表）、"dependencies_tree" 等
+- **mirror 友好**：私有 mirror 可以完全复制/修改这个 index.json，并覆盖 source.url 指向内部存储
+- **CLI 使用方式**：
+  - `oar search "全栈"` → 加载 index.json，过滤 name/description/role_category/trigger_scenarios
+  - `oar install senior-fullstack-engineer` → 根据 source 下载 → 解析 sub_skills → 递归 install
+
