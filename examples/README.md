@@ -117,4 +117,11 @@ chmod +x install-examples.sh
 
 如果角色被正确激活（语气、结构、引用最佳实践等明显变化），说明安装成功。
 
-后续我们会推出 `oar` CLI 来标准化安装、更新、搜索与依赖管理。
+
+
+CLI 如何使用：
+oar search "全栈" → 在 packages 数组中过滤 description/role_category/trigger_scenarios 包含“全栈”的项
+oar install senior-fullstack-engineer → 读取 source.url + subdir → git sparse checkout 或下载对应文件夹 → 解析 sub_skills → 递归处理依赖
+
+私有 mirror 适配：企业可以复制这个文件，把 source.url 改为内部 GitLab/S3/Harbor 地址即可实现流量劫持。
+
