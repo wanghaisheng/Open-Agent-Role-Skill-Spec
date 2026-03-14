@@ -120,8 +120,10 @@ chmod +x install-examples.sh
 
 
 CLI 如何使用：
-oar search "全栈" → 在 packages 数组中过滤 description/role_category/trigger_scenarios 包含“全栈”的项
+oar search "全栈" → 在 packages 数组中过滤 description/role_category/trigger_scenarios（及可选 occupation/position_label/job_summary）包含“全栈”的项
 oar install senior-fullstack-engineer → 读取 source.url + subdir → git sparse checkout 或下载对应文件夹 → 解析 sub_skills → 递归处理依赖
+
+**可选 HR 对齐**：三个示例角色均包含可选的 职业(occupation)、职位(position_label)、岗位(job_description/job_duties) 元数据，便于与人类 HR 体系、企业岗位主数据或 O*NET 等标准对齐。详见规范 specification.md §5.2.1 与 §9。
 
 私有 mirror 适配：企业可以复制这个文件，把 source.url 改为内部 GitLab/S3/Harbor 地址即可实现流量劫持。
 

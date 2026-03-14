@@ -9,7 +9,9 @@
 
 ## 1. 愿景与核心价值（为什么存在 OARSS）
 
-在 2026 年的 Agent 生态中，我们已经拥有 Anthropic Agent Skills 的开放文件夹格式（SKILL.md + 资源），以及 Vercel skills.sh 的安装生态。但当前最大的缺失是：
+在 2026 年的 Agent 生态中，我们已经拥有 Anthropic Agent Skills 的开放文件夹格式（SKILL.md + 资源），以及 Vercel skills.sh 的安装生态。
+这个时候为了构建一个项目，你就像一名导演，需要选角，但混乱的市场，描述各异叫法各异，能力如何评估，你就像无头苍蝇，参考术语文档，
+OARSS 为 **AI workforce** 提供一套类似人力资源管理的开放框架，以**任务驱动（task-driven）、项目驱动（project-driven）**为核心。但当前最大的缺失是：
 
 - **缺乏以“人/角色”为中心的组织方式**：现有技能多为原子工具或孤立流程，缺少“完整专家人设”的封装。
 - **复用性与维护性不足**：同一个最佳实践（如 React 性能优化）被重复写入多个 skill，升级困难。
@@ -30,7 +32,7 @@
 ## 2. 核心设计原则
 
 1. **100% 兼容 Anthropic Agent Skills 开放标准**（SKILL.md 文件夹格式、progressive disclosure 机制）
-2. **Role / Persona 第一公民**：registry 的核心商品是 persona-bundle
+2. **Role / Persona 第一公民**：registry 的核心商品是 persona-bundle；角色（Persona）为情境驱动（scenario/task-driven），不绑定静态岗位或职位。
 3. **模块化分层**：persona-bundle → sub_skills → procedure/skill/tool
 4. **渐进加载友好**：persona 保持轻量（<300 tokens brief），子技能按需加载
 5. **可镜像、可签名、可版本化**：借鉴 npm / cargo / apt 的依赖与分发模型
@@ -106,6 +108,26 @@ metadata:
     full: 4200                                   # 完整加载量（含子技能建议）
 ```
 
+### 5.2.1 Persona 与 HR 架构的可选对齐字段（可选）
+
+当需要与人类组织的职业/职位/岗位体系对齐时（如企业 mirror 与内部职级、ATS/HRIS 对接），可在 Persona Bundle 的 `metadata` 中声明以下**全部可选**字段。未声明时不影响现有行为，runtime 与 CLI 可忽略。
+
+| 字段 | 类型 | 含义 | 对应人类 HR 概念 |
+|------|------|------|------------------|
+| `occupation` | string 或 array | 职业类别（与组织无关），如 `"software-engineer"` | 职业 (Occupation) |
+| `occupation_code` | string | 标准职业编码（如 O*NET-SOC / ISCO），便于与外部数据对齐 | 职业 |
+| `position_label` | string | 人类可读职位名称，如「高级 Java 后端开发工程师」 | 职位 (Position) |
+| `position` | object | 结构化职位：`occupation`、`organization`、`grade_level`（等级） | 职位 |
+| `job_description` | string | 岗位职责摘要（类似 JD 一段描述） | 岗位 (Job) |
+| `job_duties` | array of string | 岗位职责条列，如「负责支付系统核心模块开发」 | 岗位 |
+| `job_id` | string | 外部 HR 系统岗位 ID，便于与 ATS/HRIS 关联 | 岗位 |
+| `publisher` | string | 发布/维护该 Persona 包的组织或命名空间，用于区分同一角色名不同来源（与 source、position.organization 无关） | 出品方/制片方 |
+
+- **职业**：宏观分类，与 `role_category` 可并存（occupation 偏标准/跨组织，role_category 偏标签与搜索）。
+- **职位**：仅在需要与某组织职级体系对齐时填写；公式可理解为 职位 = 职业 + 组织 + 等级。
+- **岗位**：与技能关联最直接；`sub_skills` 即支撑该岗位职责所需能力；岗位与任务/项目的显式关联留待后续版本。
+- **发布者**：同一角色名（如 senior-fullstack-engineer）可由不同发布方提供；通过 `publisher` 区分来源，便于信任与选型；Registry 可用 `publisher/name` 展示或去重。
+
 ### 5.3 子技能（skill / procedure / tool）常用字段
 
 ```yaml
@@ -140,7 +162,17 @@ metadata:
 - **mirror 友好**：persona-bundle 只需存储 metadata + 轻量正文，子技能可独立缓存
 - **私有化**：企业 mirror 可强制审核 sub_skills，覆盖官方版本
 
-## 9. 示例（简要）
+## 9. 与 HR 架构的可选对齐
+
+OARSS 以**情境角色（Persona）**为第一公民、任务/项目驱动选角；同时为与人类人力资源体系对接，支持**可选**的 职业 / 职位 / 岗位 / 发布者 元数据（见 5.2.1）。
+
+- **用熟悉语言搜索选定 Persona**：HR 映射字段（职业、职位、岗位）支持**普通用户用岗位、职位等自己熟悉的语言**（如「高级工程师」「产品经理」「支付系统开发」）在 registry 中搜索并选定目标 Persona，无需记忆英文包名；CLI/Registry 可按这些字段做语义搜索与过滤。
+- **发布者区分来源**：可选 `publisher` 用于区分「谁发布的这个 Persona」。同一角色名可由不同发布方提供，便于用户按信任选型、企业按发布方审核；类似同一角色可由不同出品方演绎。
+- **映射关系**：职业（宏观类别）→ 职位（组织内头衔/等级）→ 岗位（具体职责，与 sub_skills 对应）→ 角色（情境行为，即 Persona）。同一岗位在不同任务中可对应不同角色。
+- **兼容性**：上述字段均为可选。不提供时，OARSS 行为与 v1.0 完全一致；提供时，便于企业 mirror 与内部职级/岗位主数据、招聘数据（如 O*NET）对齐，且便于按职业/岗位/发布者搜索与展示。
+- **设计原则**：引入职业/职位/岗位/发布者**不改变**「Persona = 角色、按场景选角」的核心；它们仅作为可选锚点，用于 HR 对齐与可发现性。
+
+## 10. 示例（简要）
 
 **persona-bundle 示例**：senior-fullstack-engineer  
 （完整文件夹结构与内容见后续 examples 仓库）
@@ -148,7 +180,7 @@ metadata:
 **子技能示例**：react-best-practices  
 （type: skill，包含性能规则、hooks 模式、代码模板等）
 
-## 10. Roadmap（v1.x → v2.0）
+## 11. Roadmap（v1.x → v2.0）
 
 - v1.1：CLI 参考实现规范（install / deps / mirror）
 - v1.2：多语言支持（SKILL.zh.md 等）

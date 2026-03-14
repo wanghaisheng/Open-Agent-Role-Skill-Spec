@@ -75,9 +75,19 @@
 
 只有把 **Role/Persona** 当作第一公民（顶层商品），才能真正实现“同一个runtime，不同人生阶段/职业的技能切换”，避免锁定单一生态，也最贴近人类直觉。
 
+## 6. OARSS 与人类组织概念：AI Workforce 框架、任务-角色视角
 
+OARSS 是在为 **AI workforce** 搭建一套类似人力资源管理的框架，核心是 **task-driven、project-driven**：以任务/项目为单位衍生所需角色，再通过 Persona（角色包）与 trigger_scenarios 完成“选角”，而非先定固定岗位再填人。
 
+**为何 Persona = 角色（Role）而非岗位（Job）或职位（Position）？**
 
+- **职位（Position）**：强调组织中的“位”——职级、头衔（如“高级 Java 开发工程师”）。公式可理解为：职位 = 职业 + 组织名称 + 等级。Agent 生态中无固定雇佣关系，故规范不建模职位。
+- **岗位（Job）**：强调“岗”——具体职责、工作任务，与 JD 直接挂钩，与**技能**的关联最紧密。在完整的人力资源建模中，要找到支撑工作的技能，需从岗位的职责描述中挖掘。
+- **角色（Role）**：情境中的行为模式，随项目/任务变化（如“代码实现者”“受指导者”“方案贡献者”）。同一岗位在不同项目中可扮演不同角色。
+
+OARSS 的 **Persona** 对应的是情境中的**角色**：按场景/任务切换 Persona，即“按任务选角”。任务-角色视角的优势是更贴近真实工作、组织更敏捷；当前通过 `trigger_scenarios` 已体现这一思路。
+
+**当前规范的缺口与已补足部分**：传统意义上的**岗位（Job）**与**任务/项目（Task/Project）**在 v1 中尚未建立显式、强关联。自 v1.0 起，规范支持**可选**的职业（occupation）、职位（position_label / position）、岗位（job_description / job_duties / job_id）元数据（见 [specification.md](specification.md) 5.2.1 与 [Glossary.md](Glossary.md)），便于与人类 HR 体系、企业岗位主数据对齐；岗位与任务/项目之间的显式桥梁（如“项目所需角色与岗位的匹配”）仍留待 v1.1 或 v2.0 扩展。
 
 **我们想做的 Registry/Mirror 设计方案（v1.1）**  
 **更新日期**：2026年3月13日  

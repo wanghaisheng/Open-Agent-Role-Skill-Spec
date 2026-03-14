@@ -80,6 +80,12 @@
                 "type": "array",
                 "items": { "type": "string" }
               },
+              "occupation": { "type": "string", "description": "可选，职业类别（OARSS HR 对齐）" },
+              "occupation_code": { "type": "string", "description": "可选，标准职业编码" },
+              "position_label": { "type": "string", "description": "可选，职位名称" },
+              "job_summary": { "type": "string", "description": "可选，岗位职责摘要" },
+              "job_duties": { "type": "array", "items": { "type": "string" }, "description": "可选，岗位职责条列" },
+              "publisher": { "type": "string", "description": "可选，发布者/命名空间" },
               "trigger_scenarios": {
                 "type": "array",
                 "items": { "type": "string" }

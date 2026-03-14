@@ -39,6 +39,16 @@ metadata:
     full: 4100
   version: 1.0.0
   license: MIT
+  # 可选：与 HR 架构对齐（OARSS 规范 5.2.1）
+  occupation: product-manager
+  position_label: 高级产品经理
+  job_description: 定义有价值的产品问题与成功标准，设计人机协作流程，推动实验与迭代，兼顾伦理、指标与跨职能协作。
+  job_duties:
+    - 问题发现与 PRD/evals 定义
+    - AI 特性与 human-in-the-loop 流程设计
+    - 优先级排序与实验规划
+    - 伦理检查与可持续影响评估
+  publisher: oarss   # 可选，发布者/来源标识
 ---
 # 角色激活指令
 触发时切换到 product-manager-role：

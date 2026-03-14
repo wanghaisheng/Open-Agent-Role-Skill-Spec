@@ -87,6 +87,31 @@
                 "type": "array",
                 "items": { "type": "string" }
               },
+              "occupation": {
+                "type": "string",
+                "description": "可选，职业类别，与 HR 对齐（OARSS 可选扩展）"
+              },
+              "occupation_code": {
+                "type": "string",
+                "description": "可选，标准职业编码（如 O*NET-SOC / ISCO）"
+              },
+              "position_label": {
+                "type": "string",
+                "description": "可选，人类可读职位名称"
+              },
+              "job_summary": {
+                "type": "string",
+                "description": "可选，岗位职责摘要（来自 job_description）"
+              },
+              "job_duties": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "可选，岗位职责条列"
+              },
+              "publisher": {
+                "type": "string",
+                "description": "可选，发布者/命名空间，区分同一角色名不同来源"
+              },
               "trigger_scenarios": {
                 "type": "array",
                 "items": { "type": "string" }
@@ -147,6 +172,10 @@
       },
       "metadata_summary": {
         "role_category": ["开发-全栈", "工程师"],
+        "occupation": "software-engineer",
+        "position_label": "高级全栈工程师",
+        "job_summary": "负责 Web 全栈功能的设计、开发与代码审查，侧重 React/Next.js、TypeScript、Supabase/PostgreSQL。",
+        "publisher": "oarss",
         "trigger_scenarios": ["React", "Next.js", "代码 review"],
         "sub_skills": [
           {"name": "react-best-practices", "version_range": "^1.3", "required": true},
@@ -154,8 +183,57 @@
         ],
         "estimated_tokens": {"brief": 220, "full": 4800}
       }
+    },
+    {
+      "name": "loving-husband-role",
+      "type": "persona-bundle",
+      "description": "当用户提到家庭、伴侣、孩子、家务、情感支持时激活。扮演温柔、体贴的丈夫。",
+      "latest_version": "1.0.0",
+      "published_at": "2026-03-10T09:00:00Z",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/open-agent-role-skill/oarss-examples.git",
+        "subdir": "loving-husband-role"
+      },
+      "metadata_summary": {
+        "role_category": ["家庭-丈夫", "亲密关系", "情感支持"],
+        "occupation": "family-caregiver",
+        "position_label": "家庭伴侣",
+        "job_summary": "承担伴侣与家庭中的情感支持、家务分担、冲突化解与关系维护。",
+        "publisher": "oarss",
+        "trigger_scenarios": ["老婆", "家务", "纪念日", "婚姻建议"],
+        "sub_skills": [
+          {"name": "emotional-communication", "version_range": "^1.0", "required": true},
+          {"name": "shared-home-responsibilities", "version_range": "any", "required": true}
+        ],
+        "estimated_tokens": {"brief": 180, "full": 3200}
+      }
+    },
+    {
+      "name": "product-manager-role",
+      "type": "persona-bundle",
+      "description": "当讨论产品规划、用户需求、AI 特性设计、实验与指标时激活。扮演 AI 时代产品经理。",
+      "latest_version": "1.0.0",
+      "published_at": "2026-03-10T09:00:00Z",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/open-agent-role-skill/oarss-examples.git",
+        "subdir": "product-manager-role"
+      },
+      "metadata_summary": {
+        "role_category": ["产品-经理", "AI-产品", "战略"],
+        "occupation": "product-manager",
+        "position_label": "高级产品经理",
+        "job_summary": "定义产品问题与成功标准，设计人机协作流程，推动实验与迭代，兼顾伦理与指标。",
+        "publisher": "oarss",
+        "trigger_scenarios": ["产品需求", "AI 特性", "evals", "优先级"],
+        "sub_skills": [
+          {"name": "problem-discovery-framework", "version_range": "^1.0", "required": true},
+          {"name": "ai-eval-definition", "version_range": "^1.2", "required": true}
+        ],
+        "estimated_tokens": {"brief": 200, "full": 4100}
+      }
     }
-    // ... 更多包
   ]
 }
 ```
